@@ -67,13 +67,6 @@ impl Envelope {
     {
         let mut item_buf = Vec::new();
 
-        // write the headers:
-        let event_id = self.uuid();
-        match event_id {
-            Some(uuid) => writeln!(writer, r#"{{"event_id":"{}"}}"#, uuid)?,
-            _ => writeln!(writer, "{{}}")?,
-        }
-
         // write each item:
         for item in &self.items {
             // we write them to a temporary buffer first, since we need their length
@@ -82,15 +75,6 @@ impl Envelope {
                 match item {
                     EnvelopeItem::Event(event) => event,
                 },
-            )?;
-            let item_type = match item {
-                EnvelopeItem::Event(_) => "event",
-            };
-            writeln!(
-                writer,
-                r#"{{"type":"{}","length":{}}}"#,
-                item_type,
-                item_buf.len()
             )?;
             writer.write_all(&item_buf)?;
             writeln!(writer)?;
